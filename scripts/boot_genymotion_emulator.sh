@@ -1,0 +1,3 @@
+PLAYER_PATH=$1
+VM_NAME=$2
+$PLAYER_PATH --vm-name $2

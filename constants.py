@@ -1,16 +1,6 @@
 PLATFORM_TOOLS_DIR = "platform-tools"
 
 
-class Script:
-    ADB_RESET = "appiumatic/scripts/adb_reset.sh"
-    CHECK_BOOT_ANIM = "appiumatic/scripts/check_boot_anim.sh"
-    BOOT_STANDARD_EMU = "appiumatic/scripts/boot_standard_emulator.sh"
-    BOOT_GENYMOTION_EMU = "appiumatic/scripts/boot_genymotion_emulator.sh"
-    KILL_STANDARD_EMU = "appiumatic/scripts/kill_standard_emulator.sh"
-    KILL_GENYMOTION_EMU = "appiumatic/scripts/kill_genymotion_emulator.sh"
-    START_APPIUM = "appiumatic/scripts/start_appium.sh"
-
-
 class GUIActionType:
     CLICK = "click"
     LONG_CLICK = "long-click"

@@ -1,5 +1,5 @@
 import logging
-from appiumatic.constants import SelectorType, KeyCode
+from constants import SelectorType, KeyCode
 from appium.webdriver.common.touch_action import TouchAction
 from exceptions import UnknownAction
 
@@ -161,13 +161,10 @@ class SwipeLeft(Action):
         start_y = int(screen_size["height"] / 2.0)
         driver.swipe(start_x, start_y, end_x, start_y, 200)
 
+
 class LaunchApp(Action):
     def __init__(self, target, action_type, value=None):
         super().__init__(target, action_type, value)
 
     def execute(self, driver):
         pass
-
-
-
-

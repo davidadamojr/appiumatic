@@ -2,7 +2,7 @@ import logging
 import random
 import time
 
-from appiumatic.constants import *
+from constants import GUIActionType
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,3 @@ class Executor(object):
             action.execute(self.driver)
 
         time.sleep(self.event_interval)
-
-
-
-

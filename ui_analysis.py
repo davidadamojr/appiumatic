@@ -2,7 +2,7 @@ import lxml.etree as etree
 import logging
 import abstraction
 from hashing import generate_state_hash
-from constants import *
+from constants import GUIActionType
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,8 @@ def get_available_events(driver):
     possible_actions = get_possible_actions(page_source)
     text_entry_actions, non_text_entry_actions = classify_actions(possible_actions)
     if text_entry_actions:
-        available_events = abstraction.create_partial_text_events(current_state, text_entry_actions, non_text_entry_actions)
+        available_events = abstraction.create_partial_text_events(current_state, text_entry_actions,
+                                                                  non_text_entry_actions)
     else:
         available_events = abstraction.create_partial_events(current_state, possible_actions)
 
@@ -122,4 +123,3 @@ def get_current_state(driver):
 
     logger.debug("Current state: {}".format(current_state))
     return current_state
-

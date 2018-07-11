@@ -1,6 +1,6 @@
 import logging
-from appiumatic import actions
-from appiumatic.constants import *
+import actions
+from constants import SelectorType, GUIActionType, SystemActionType, KeyCode, TargetType, TargetState
 
 
 logger = logging.getLogger(__name__)
@@ -39,17 +39,18 @@ def create_launch_event():
     return partial_event
 
 
-def create_partial_event(precondition, actions):
+def create_partial_event(precondition, actions_):
     partial_event = {
         "precondition": precondition,
-        "actions": actions
+        "actions": actions_
     }
     return partial_event
 
 
 def create_partial_text_events(current_state, text_entry_actions, non_text_entry_actions):
     if len(text_entry_actions) == 1:
-        logger.debug("Only one text field in the current state. We may need to use the ENTER key since it may be a search field.")
+        logger.debug("Only one text field in the current state. We may need to use the ENTER key since it may be a "
+                     "search field.")
 
         text_based_events = create_events_for_single_text_field(current_state,
                                                                 text_entry_actions[0], non_text_entry_actions)
@@ -109,7 +110,8 @@ def create_events_for_multiple_text_fields(current_state, text_entry_actions, no
     for non_text_entry_action in non_text_entry_actions:
         action_pairs_with_text_entry = does_action_pair_with_text_entry(non_text_entry_action)
         if action_pairs_with_text_entry:
-            multiple_text_entry_event = create_partial_event(current_state, text_entry_actions + [non_text_entry_action])
+            multiple_text_entry_event = create_partial_event(current_state, text_entry_actions +
+                                                             [non_text_entry_action])
             text_based_events.append(multiple_text_entry_event)
 
     return text_based_events
@@ -261,7 +263,7 @@ def create_state(current_activity, state_id):
 
 
 def create_crash_state():
-    state= {
+    state = {
         "activityName": "crash",
         "stateId": "crash"
     }
@@ -278,4 +280,3 @@ def make_event_serializable(event):
     event["actions"] = actions_as_dicts
 
     return event
-

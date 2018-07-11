@@ -332,7 +332,7 @@ class HashingTests(unittest.TestCase):
         test_case = [event_1, event_2]
 
         # Act
-        test_case_hash = hashing.generate_test_case_hash(test_case)
+        test_case_hash = hashing.generate_sequence_hash(test_case)
 
         # Assert
         self.assertEqual(test_case_hash, "854ec40eabd6348cd96507a1339d9bd64919e747")
@@ -374,8 +374,8 @@ class HashingTests(unittest.TestCase):
         test_case2 = [event_2, event_1]
 
         # Act
-        test_case_hash1 = hashing.generate_test_case_hash(test_case1)
-        test_case_hash2 = hashing.generate_test_case_hash(test_case2)
+        test_case_hash1 = hashing.generate_sequence_hash(test_case1)
+        test_case_hash2 = hashing.generate_sequence_hash(test_case2)
 
         # Assert
         self.assertNotEqual(test_case_hash1, test_case_hash2)

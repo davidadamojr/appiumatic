@@ -13,24 +13,16 @@ from hashing import generate_sequence_hash, generate_event_hash
 logger = logging.getLogger(__name__)
 
 
-def write_sequence_to_file(path_to_sequence, events, sequence_count, sequence_duration):
-    sequence_count = str(sequence_count + 1).zfill(3)
-    sequence_path = os.path.join(path_to_sequence, "tc{}_{}.json".format(sequence_count, sequence_duration))
-    serializable_events = [make_event_serializable(event) for event in events]
-    sequence_data = {
-        "events": serializable_events,
-        "length": len(events)
-    }
-
-    with open(sequence_path, 'w') as sequence_file:
-        json.dump(sequence_data, sequence_file, sort_keys=True)
-
-    return sequence_path
-
-
 class SequenceGenerator:
-    def __init__(self, database):
+    def __init__(self, database, termination_strategy, event_selection_strategy, setup_strategy, tear_down_strategy):
         self.database = database
+        self.termination_strategy = termination_strategy
+        self.event_selection_strategy = event_selection_strategy
+        self.setup_strategy = setup_strategy
+        self.tear_down_strategy = tear_down_strategy
+
+    def generate(self):
+        sequence_info = self.initialize_sequence()
 
     def remove_termination_events(self, test_suite_id, events):
         non_termination_events = []
@@ -83,28 +75,44 @@ class SequenceGenerator:
 
         return current_state
 
+    @staticmethod
+    def write_sequence_to_file(path_to_sequence, events, sequence_count, sequence_duration):
+        sequence_count = str(sequence_count + 1).zfill(3)
+        sequence_path = os.path.join(path_to_sequence, "tc{}_{}.json".format(sequence_count, sequence_duration))
+        serializable_events = [make_event_serializable(event) for event in events]
+        sequence_data = {
+            "events": serializable_events,
+            "length": len(events)
+        }
+
+        with open(sequence_path, 'w') as sequence_file:
+            json.dump(sequence_data, sequence_file, sort_keys=True)
+
+        return sequence_path
+
     def finalize_test_case(self, test_case, test_suite, path_to_test_cases, test_case_count):
         end_time = time.time()
         test_case_duration = int(end_time - test_case.start_time)
         self.database.add_test_case(generate_sequence_hash(test_case.events), test_suite.id, end_time,
                                     test_case_duration)
-        test_case_path = write_sequence_to_file(path_to_test_cases, test_case.events, test_case_count,
-                                                test_case_duration)
+        test_case_path = self.write_sequence_to_file(path_to_test_cases, test_case.events, test_case_count,
+                                                     test_case_duration)
         logger.debug("Test case {} written to {}.".format(test_case_count, test_case_path))
 
 
 class SuiteGenerator:
-    def __init__(self, database, sequence_generator, configuration):
+    def __init__(self, database, sequence_generator, completion_criterion):
         self.database = database
         self.sequence_generator = sequence_generator
-        self.configuration = configuration
+        self.completion_criterion = completion_criterion
 
-    def construct_suite(self, completion_criterion):
-
+    def generate(self):
         suite_duration = 0
         sequence_count = 0
-        while not completion_criterion(test_duration=suite_duration, test_case_count=sequence_count):
+        while not self.completion_criterion(suite_duration=suite_duration,
+                                            sequence_count=sequence_count):
             try:
+                sequence = self.sequence_generator.generate()
                 test_case = self.initialize_test_case(setup_strategy)
                 logger.debug(
                     "Generating test case {}. Start time is {}.".format(sequence_count + 1, test_case.start_time))

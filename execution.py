@@ -7,11 +7,7 @@ from constants import GUIActionType
 logger = logging.getLogger(__name__)
 
 
-def create_executor(driver, event_interval, text_values):
-    return Executor(driver, event_interval, text_values)
-
-
-class Executor(object):
+class Executor:
     def __init__(self, driver, event_interval, text_values):
         self.driver = driver
         self.event_interval = event_interval

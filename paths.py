@@ -32,10 +32,10 @@ def create_coverage_path(output_path):
     return path_to_coverage
 
 
-def create_output_directories(apk_package_name, output_path, suite_creation_time):
-    logger.debug("APK package name is {}".format(apk_package_name))
+def create_output_directories(app_package_name, output_path, suite_creation_time):
+    logger.debug("APK package name is {}".format(app_package_name))
     logger.debug("Output path is {}".format(output_path))
-    output_path = os.path.join(output_path, "{}_{}".format(apk_package_name, str(suite_creation_time)))
+    output_path = os.path.join(output_path, "{}_{}".format(app_package_name, str(suite_creation_time)))
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)

@@ -6,12 +6,12 @@ logger = logging.getLogger(__name__)
 
 
 def create_sequence_path(output_path):
-    path_to_test_cases = os.path.join(output_path, "testcases")
-    if not os.path.exists(path_to_test_cases):
-        os.makedirs(path_to_test_cases)
-    logger.debug("Test cases are stored in {}.".format(path_to_test_cases))
+    path_to_sequences = os.path.join(output_path, "sequences")
+    if not os.path.exists(path_to_sequences):
+        os.makedirs(path_to_sequences)
+    logger.debug("Test cases are stored in {}.".format(path_to_sequences))
 
-    return path_to_test_cases
+    return path_to_sequences
 
 
 def create_log_path(output_path):

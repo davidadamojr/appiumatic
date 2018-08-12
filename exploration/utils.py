@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def write_sequence_to_file(path_to_sequence, events, sequence_count, sequence_duration):
-    sequence_count = str(sequence_count + 1).zfill(3)
+    sequence_count = str(sequence_count).zfill(3)
     sequence_path = os.path.join(path_to_sequence, "tc{}_{}.json".format(sequence_count, sequence_duration))
     serializable_events = [make_event_serializable(event) for event in events]
     sequence_data = {
@@ -22,11 +22,11 @@ def write_sequence_to_file(path_to_sequence, events, sequence_count, sequence_du
     return sequence_path
 
 
-def remove_termination_events(database, test_suite_id, events):
+def remove_termination_events(database, suite_id, events):
     non_termination_events = []
     for event in events:
         event_hash = generate_event_hash(event)
-        if database.is_termination_event(test_suite_id, event_hash):
+        if database.is_termination_event(suite_id, event_hash):
             logger.debug("Removing termination event {}".format(event_hash))
             continue
 

@@ -28,7 +28,7 @@ class SequenceGenerator:
         current_state = sequence_info.start_state
         executor = self.executor_factory(driver=sequence_info.driver)
         while not self.termination_criterion(self.database,
-                                             test_case_hash=generate_sequence_hash(sequence_info.events),
+                                             sequence_hash=generate_sequence_hash(sequence_info.events),
                                              event_count=len(sequence_info.events),
                                              suite_id=suite_id):
             next_event_info = self.process_next_event(sequence_info, suite_id, executor)
@@ -48,10 +48,10 @@ class SequenceGenerator:
 
         return int(time.time() - sequence_info.start_time)
 
-    def initialize_sequence(self):
+    def initialize(self):
         driver = self.setup_strategy()
 
-        start_time = time.time()
+        start_time = int(time.time())
         launch_event = create_launch_event()
         start_state = get_current_state(driver)
         complete_event = synthesize(launch_event, start_state)
@@ -72,7 +72,7 @@ class SequenceGenerator:
 
     def choose_event(self, sequence_info, suite_id):
         partial_events = get_available_events(sequence_info.driver)
-        non_termination_events = remove_termination_events(suite_id, partial_events)
+        non_termination_events = remove_termination_events(self.database, suite_id, partial_events)
         if non_termination_events:
             selected_event = self.event_selection_strategy(self.database, non_termination_events, suite_id=suite_id)
         else:
@@ -86,20 +86,20 @@ class SequenceGenerator:
     def update_knowledge_base(self, suite_id, next_event_info, sequence_info):
         self.database.update_event_frequency(suite_id, next_event_info.event_hash)
 
-    def finalize(self, sequence_count, suite_id, sequence_info, output_paths, adb_path):
+    def finalize(self, sequence_count, suite_id, sequence_info, output_paths, adb_info):
         end_time = time.time()
         sequence_duration = int(end_time - sequence_info.start_time)
         self.database.add_sequence(generate_sequence_hash(sequence_info.events),
                                    suite_id,
                                    sequence_info.start_time,
                                    sequence_duration)
-        sequence_path = write_sequence_to_file(output_paths.path_to_sequence,
+        sequence_path = write_sequence_to_file(output_paths.sequences,
                                                sequence_info.events,
                                                sequence_count,
                                                sequence_duration)
         logger.debug("Sequence {} written to {}.".format(sequence_count + 1, sequence_path))
 
         logger.debug("Beginning test case teardown.")
-        self.tear_down_strategy(sequence_info.driver, adb_path)
+        self.tear_down_strategy(sequence_info.driver)
 
 

@@ -27,10 +27,10 @@ class SequenceGenerator:
     def generate(self, sequence_info, app_package_name, suite_id):
         current_state = sequence_info.start_state
         executor = self.executor_factory(driver=sequence_info.driver)
-        while not self.termination_criterion(self.database,
+        while not self.termination_criterion(database=self.database,
                                              sequence_hash=generate_sequence_hash(sequence_info.events),
-                                             event_count=len(sequence_info.events),
-                                             suite_id=suite_id):
+                                             suite_id=suite_id,
+                                             event_count=len(sequence_info.events)):
             next_event_info = self.process_next_event(sequence_info, suite_id, executor)
             current_state = next_event_info.resulting_state
             self.update_knowledge_base(suite_id, next_event_info, sequence_info)
@@ -49,9 +49,9 @@ class SequenceGenerator:
         return int(time.time() - sequence_info.start_time)
 
     def initialize(self):
-        driver = self.setup_strategy()
-
         start_time = int(time.time())
+
+        driver = self.setup_strategy()
         launch_event = create_launch_event()
         start_state = get_current_state(driver)
         complete_event = synthesize(launch_event, start_state)
@@ -74,7 +74,9 @@ class SequenceGenerator:
         partial_events = get_available_events(sequence_info.driver)
         non_termination_events = remove_termination_events(self.database, suite_id, partial_events)
         if non_termination_events:
-            selected_event = self.event_selection_strategy(self.database, non_termination_events, suite_id=suite_id)
+            selected_event = self.event_selection_strategy(events=non_termination_events,
+                                                           database=self.database,
+                                                           suite_id=suite_id)
         else:
             logger.warning("No events available for selection. All events in the current state are marked as "
                            "termination events.")
@@ -86,7 +88,7 @@ class SequenceGenerator:
     def update_knowledge_base(self, suite_id, next_event_info, sequence_info):
         self.database.update_event_frequency(suite_id, next_event_info.event_hash)
 
-    def finalize(self, sequence_count, suite_id, sequence_info, output_paths, adb_info):
+    def finalize(self, sequence_count, suite_id, sequence_info, output_paths):
         end_time = time.time()
         sequence_duration = int(end_time - sequence_info.start_time)
         self.database.add_sequence(generate_sequence_hash(sequence_info.events),
@@ -97,7 +99,7 @@ class SequenceGenerator:
                                                sequence_info.events,
                                                sequence_count,
                                                sequence_duration)
-        logger.debug("Sequence {} written to {}.".format(sequence_count + 1, sequence_path))
+        logger.debug("Sequence {} written to {}.".format(sequence_count, sequence_path))
 
         logger.debug("Beginning test case teardown.")
         self.tear_down_strategy(sequence_info.driver)
